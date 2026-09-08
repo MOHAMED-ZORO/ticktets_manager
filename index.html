@@ -1,0 +1,3283 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>نظام إدارة حجوزات النادي</title>
+
+<!-- مكتبات PDF -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+<style>
+
+:root{
+--p:#2563eb;
+--bg:#f5f7fb;
+--card:#fff;
+--text:#172033;
+--muted:#6b7280;
+--danger:#dc2626;
+--ok:#16a34a;
+--yellow:#d97706;
+}
+
+*{
+box-sizing:border-box;
+}
+
+body{
+margin:0;
+font-family:Tahoma,Arial,sans-serif;
+background:var(--bg);
+color:var(--text);
+}
+
+header{
+background:linear-gradient(135deg,#1d4ed8,#2563eb);
+color:#fff;
+padding:22px;
+}
+
+.wrap{
+max-width:1200px;
+margin:auto;
+}
+
+h1{
+margin:0;
+font-size:26px;
+}
+
+nav{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+margin-top:18px;
+}
+
+nav button,.btn{
+border:0;
+border-radius:10px;
+padding:10px 15px;
+cursor:pointer;
+font-size:15px;
+}
+
+nav button{
+background:#ffffff22;
+color:white;
+}
+
+.active{
+background:#fff!important;
+color:#1d4ed8!important;
+}
+
+main{
+max-width:1200px;
+margin:20px auto;
+padding:0 14px;
+}
+
+.page{
+display:none;
+}
+
+.page.active{
+display:block;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+}
+
+.card{
+background:var(--card);
+padding:18px;
+border-radius:16px;
+box-shadow:0 3px 14px #00000012;
+}
+
+.stat{
+font-size:30px;
+font-weight:bold;
+}
+
+.muted{
+color:var(--muted);
+}
+
+label{
+display:block;
+margin-top:10px;
+font-weight:bold;
+}
+
+input,select,textarea{
+width:100%;
+padding:11px;
+border:1px solid #d8deea;
+border-radius:9px;
+margin-top:5px;
+font-size:15px;
+background:white;
+}
+
+.btn{
+background:var(--p);
+color:white;
+margin-top:14px;
+}
+
+.btn.secondary{
+background:#64748b;
+}
+
+.btn.danger{
+background:var(--danger);
+}
+
+.btn.ok{
+background:var(--ok);
+}
+
+.btn.warning{
+background:var(--yellow);
+}
+
+.btn.small{
+padding:7px 10px;
+margin:3px;
+font-size:13px;
+}
+
+.tablewrap{
+overflow:auto;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:12px;
+background:white;
+}
+
+th,td{
+padding:11px;
+border-bottom:1px solid #e5e7eb;
+text-align:right;
+white-space:nowrap;
+}
+
+th{
+background:#eef4ff;
+}
+
+.notice{
+padding:12px;
+border-radius:9px;
+background:#eff6ff;
+margin:10px 0;
+}
+
+.searchrow{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+}
+
+.searchrow>*{
+flex:1;
+min-width:170px;
+}
+
+.calendar-head{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
+margin-bottom:12px;
+}
+
+.calendar{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:5px;
+width:100%;
+}
+
+.dayname{
+text-align:center;
+font-weight:bold;
+color:var(--muted);
+padding:7px;
+font-size:14px;
+}
+
+.day{
+min-height:78px;
+background:white;
+border:1px solid #e5e7eb;
+border-radius:10px;
+padding:7px;
+cursor:pointer;
+}
+
+.day:hover{
+border-color:var(--p);
+}
+
+.day.empty{
+background:transparent;
+border:0;
+cursor:default;
+}
+
+.today{
+outline:2px solid var(--p);
+}
+
+.selectedDay{
+background:#dbeafe;
+border:2px solid var(--p);
+}
+
+.count{
+font-size:12px;
+color:white;
+background:var(--danger);
+border-radius:10px;
+padding:2px 6px;
+float:left;
+}
+
+.slot{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
+padding:12px;
+}
+
+.reservedSlot{
+background:#fff1f2;
+border-radius:10px;
+margin-bottom:7px;
+}
+
+.freeSlot{
+background:#f0fdf4;
+border-radius:10px;
+margin-bottom:7px;
+}
+
+.completedSlot{
+background:#fffbeb;
+border:1px solid #facc15;
+border-radius:10px;
+margin-bottom:7px;
+}
+
+.slotActions{
+display:flex;
+gap:4px;
+flex-wrap:wrap;
+justify-content:flex-end;
+}
+
+.badge{
+padding:5px 9px;
+border-radius:20px;
+font-size:13px;
+}
+
+.reserved{
+background:#fee2e2;
+color:#991b1b;
+}
+
+.free{
+background:#dcfce7;
+color:#166534;
+}
+
+.completed{
+background:#fef3c7;
+color:#92400e;
+}
+
+.completedText{
+color:#b45309;
+font-weight:bold;
+font-size:16px;
+}
+
+.flex{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+align-items:end;
+}
+
+.flex>*{
+flex:1;
+min-width:180px;
+}
+
+.hidden{
+display:none;
+}
+
+.loginButtons{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-top:16px;
+}
+
+.revenueRow{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:10px;
+}
+
+.eyeBtn{
+border:0;
+background:#e8eefb;
+color:#1d4ed8;
+border-radius:9px;
+padding:8px 10px;
+cursor:pointer;
+font-size:17px;
+}
+
+.reportTable{
+margin-top:20px;
+}
+
+.reportSummary{
+margin-top:15px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:12px;
+}
+
+.reportSummary .card{
+box-shadow:none;
+border:1px solid #e5e7eb;
+}
+
+.sectionTitle{
+margin-top:0;
+}
+
+@media(max-width:700px){
+
+h1{
+font-size:21px;
+}
+
+.calendar{
+gap:3px;
+}
+
+.day{
+min-height:50px;
+font-size:12px;
+padding:4px;
+}
+
+.dayname{
+font-size:10px;
+padding:5px 1px;
+}
+
+.count{
+font-size:9px;
+padding:2px 4px;
+}
+
+th,td{
+font-size:13px;
+padding:8px;
+}
+
+.slot{
+flex-direction:column;
+align-items:stretch;
+}
+
+.slotActions{
+justify-content:flex-start;
+}
+
+.calendar-head h2{
+font-size:17px;
+text-align:center;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="wrap">
+
+<h1>⚽ نظام إدارة حجوزات النادي</h1>
+
+<nav>
+
+<button class="active" onclick="showPage('dashboard',this)">
+الرئيسية
+</button>
+
+<button onclick="showPage('bookings',this)">
+كل الحجوزات
+</button>
+
+<button onclick="showPage('calendarPage',this)">
+📅 التقويم والأوقات
+</button>
+
+<button onclick="showPage('reports',this)">
+📊 التقارير والأرباح
+</button>
+
+<button onclick="showPage('settings',this)">
+⚙️ الإعدادات
+</button>
+
+</nav>
+
+</div>
+
+</header>
+
+<main>
+
+<!-- الرئيسية -->
+
+<section id="dashboard" class="page active">
+
+<div class="grid">
+
+<div class="card">
+
+<div class="muted">
+حجوزات اليوم
+</div>
+
+<div class="stat" id="todayCount">
+0
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="muted">
+إجمالي الحجوزات
+</div>
+
+<div class="stat" id="totalCount">
+0
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="muted">
+الأوقات المتاحة اليوم
+</div>
+
+<div class="stat" id="freeCount">
+0
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="muted">
+إيرادات اليوم
+</div>
+
+<div class="revenueRow">
+
+<div class="stat" id="todayRevenue">
+0
+</div>
+
+<button class="eyeBtn" onclick="toggleRevenue()" id="revenueToggle">
+👁️
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="card" style="margin-top:15px">
+
+<h2>🔎 بحث سريع عن وقت</h2>
+
+<div class="searchrow">
+
+<input type="date" id="quickDate">
+
+<select id="quickTime"></select>
+
+<button class="btn" onclick="quickSearch()">
+بحث
+</button>
+
+</div>
+
+<div id="quickResult"></div>
+
+</div>
+
+<div class="card" style="margin-top:15px">
+
+<h2>📋 حجوزات اليوم</h2>
+
+<div id="todayList"></div>
+
+</div>
+
+</section>
+
+<!-- إضافة حجز -->
+
+<section id="booking" class="page">
+
+<div class="card">
+
+<h2 id="formTitle">
+➕ إضافة حجز جديد
+</h2>
+
+<div class="flex">
+
+<div>
+
+<label>اسم الحاجز</label>
+
+<input
+id="name"
+placeholder="مثال: أحمد محمد"
+
+>
+
+</div>
+
+<div>
+
+<label>رقم الهاتف</label>
+
+<input
+id="phone"
+type="tel"
+placeholder="رقم الحاجز"
+
+>
+
+</div>
+
+</div>
+
+<div class="flex">
+
+<div>
+
+<label>التاريخ</label>
+
+<input id="date" type="date">
+
+</div>
+
+<div>
+
+<label>الساعة</label>
+
+<select id="time"></select>
+
+</div>
+
+<div>
+
+<label>سعر الحجز</label>
+
+<input
+id="price"
+type="number"
+min="0"
+step="0.01"
+
+>
+
+</div>
+
+</div>
+
+<label>
+ملاحظات (اختياري)
+</label>
+
+<textarea id="notes" rows="3"></textarea>
+
+<button class="btn" onclick="saveBooking()">
+💾 حفظ الحجز
+</button>
+
+<button
+id="cancelEdit"
+class="btn secondary hidden"
+onclick="cancelEditing()"
+
+>
+
+إلغاء التعديل </button>
+
+<div id="formMessage"></div>
+
+</div>
+
+</section>
+
+<!-- كل الحجوزات -->
+
+<section id="bookings" class="page">
+
+<div class="card">
+
+<h2>📚 جميع الحجوزات</h2>
+
+<div class="notice">
+
+📅 عند اختيار تاريخ سيتم عرض جميع الحجوزات من ذلك اليوم وما بعده.
+
+</div>
+
+<div class="searchrow">
+
+<input
+id="filterText"
+placeholder="ابحث بالاسم أو الرقم..."
+oninput="renderBookings()"
+
+>
+
+<input
+id="filterDate"
+type="date"
+onchange="renderBookings()"
+
+>
+
+<button
+class="btn secondary"
+onclick="clearFilters()"
+
+>
+
+مسح البحث </button>
+
+</div>
+
+<div class="tablewrap">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>الاسم</th>
+<th>الرقم</th>
+<th>التاريخ</th>
+<th>الوقت</th>
+<th>السعر</th>
+<th>الحالة</th>
+<th>ملاحظات</th>
+<th>إجراءات</th>
+
+</tr>
+
+</thead>
+
+<tbody id="bookingsBody"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- التقويم والأوقات -->
+
+<section id="calendarPage" class="page">
+
+<div class="card">
+
+<div class="calendar-head">
+
+<button class="btn secondary" onclick="changeMonth(-1)">
+الشهر السابق
+</button>
+
+<h2 id="monthTitle"></h2>
+
+<button class="btn secondary" onclick="changeMonth(1)">
+الشهر التالي
+</button>
+
+</div>
+
+<div class="calendar" id="calendar"></div>
+
+</div>
+
+<div class="card" style="margin-top:15px">
+
+<h2 id="selectedDayTitle">
+📅 اختر يوماً من التقويم
+</h2>
+
+<div id="allSlots">
+
+<div class="notice">
+
+اختر يوماً من التقويم لعرض الأوقات المتاحة والمحجوزة.
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- التقارير -->
+
+<section id="reports" class="page">
+
+<div class="card">
+
+<h2 class="sectionTitle">
+📊 تقرير الأرباح لفترة زمنية
+</h2>
+
+<div class="notice">
+
+💰 التقرير المالي يعرض الحجوزات التي تم الضغط على زر <b>تم</b> فيها فقط.
+
+</div>
+
+<div class="flex">
+
+<div>
+
+<label>من تاريخ</label>
+
+<input type="date" id="reportStart">
+
+</div>
+
+<div>
+
+<label>إلى تاريخ</label>
+
+<input type="date" id="reportEnd">
+
+</div>
+
+<div>
+
+<button class="btn" onclick="generateReport()">
+📊 إنشاء التقرير
+</button>
+
+<button class="btn danger" onclick="exportReportPDF()">
+📄 إخراج PDF
+</button>
+
+</div>
+
+</div>
+
+<div id="reportResult"></div>
+
+</div>
+
+</section>
+
+<!-- الإعدادات -->
+
+<section id="settings" class="page">
+
+<div class="grid">
+
+<div class="card">
+
+<h2>⚙️ إعدادات ساعات العمل</h2>
+
+<label>أول ساعة</label>
+
+<input
+id="startHour"
+type="number"
+min="0"
+max="23"
+
+>
+
+<label>آخر ساعة</label>
+
+<input
+id="endHour"
+type="number"
+min="1"
+max="24"
+
+>
+
+<label>💵 السعر الافتراضي للحجز</label>
+
+<input
+id="defaultPrice"
+type="number"
+min="0"
+step="0.01"
+placeholder="مثال: 5000"
+
+>
+
+<button class="btn" onclick="saveSettings()">
+💾 حفظ ساعات العمل والسعر
+</button>
+
+<div class="notice">
+
+سيتم استخدام السعر الافتراضي تلقائياً عند إنشاء حجز جديد.
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>💾 إدارة البيانات</h2>
+
+<p>
+
+يمكنك حفظ نسخة احتياطية من البيانات أو استعادتها لاحقاً.
+
+</p>
+
+<div class="loginButtons">
+
+<button class="btn ok" onclick="loginData()">
+📂 تسجيل دخول — رفع البيانات
+</button>
+
+<button class="btn secondary" onclick="logoutData()">
+🚪 تسجيل خروج — حفظ نسخة
+</button>
+
+</div>
+
+<input
+type="file"
+id="loginFile"
+accept=".json"
+class="hidden"
+onchange="importLoginData(event)"
+
+>
+
+<hr style="margin:20px 0;border:0;border-top:1px solid #ddd">
+
+<h3>
+📄 تقارير الحجوزات الملغية
+</h3>
+
+<button
+class="btn warning"
+onclick="exportCancelledReportPDF()"
+
+>
+
+📄 إنشاء تقرير الحجوزات الملغية PDF </button>
+
+<hr style="margin:20px 0;border:0;border-top:1px solid #ddd">
+
+<button
+class="btn danger"
+onclick="clearAll()"
+
+>
+
+🗑️ حذف جميع البيانات </button>
+
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+<script>
+
+
+/* =========================
+   التخزين
+========================= */
+
+const KEY='clubBookingsV2';
+
+const CANCELLED_KEY='clubCancelledBookingsV2';
+
+const SET='clubSettingsV2';
+
+const TICKET_COUNTER='clubTicketsCounterV2';
+
+
+let bookings=
+JSON.parse(localStorage.getItem(KEY)||'[]');
+
+
+let cancelledBookings=
+JSON.parse(localStorage.getItem(CANCELLED_KEY)||'[]');
+
+
+let settings=
+JSON.parse(
+localStorage.getItem(SET)||
+'{"startHour":8,"endHour":23,"defaultPrice":0}'
+);
+
+
+let editingId=null;
+
+let calDate=new Date();
+
+let selectedDate=null;
+
+let revenueVisible=true;
+
+
+const $=id=>document.getElementById(id);
+
+
+
+/* =========================
+   أدوات
+========================= */
+
+function pad(n){
+
+return String(n).padStart(2,'0');
+
+}
+
+
+function localDate(d=new Date()){
+
+return d.getFullYear()+
+'-'+
+pad(d.getMonth()+1)+
+'-'+
+pad(d.getDate());
+
+}
+
+
+function escapeHtml(text){
+
+return String(text)
+.replace(/&/g,'&amp;')
+.replace(/</g,'&lt;')
+.replace(/>/g,'&gt;')
+.replace(/"/g,'&quot;')
+.replace(/'/g,'&#039;');
+
+}
+
+
+
+/* =========================
+   حفظ البيانات
+========================= */
+
+function save(){
+
+localStorage.setItem(
+KEY,
+JSON.stringify(bookings)
+);
+
+localStorage.setItem(
+CANCELLED_KEY,
+JSON.stringify(cancelledBookings)
+);
+
+updateAll();
+
+}
+
+
+
+/* =========================
+   الأوقات
+========================= */
+
+function slots(){
+
+let a=[];
+
+for(
+let h=Number(settings.startHour);
+h<Number(settings.endHour);
+h++
+){
+
+a.push(
+pad(h)+':00'
+);
+
+}
+
+return a;
+
+}
+
+
+function fillTimes(){
+
+['time','quickTime'].forEach(id=>{
+
+let el=$(id);
+
+el.innerHTML=
+slots()
+.map(x=>`<option value="${x}">${x}</option>`)
+.join('');
+
+});
+
+}
+
+
+
+/* =========================
+   البداية
+========================= */
+
+function init(){
+
+settings.defaultPrice=
+Number(settings.defaultPrice)||0;
+
+
+fillTimes();
+
+
+$('date').value=localDate();
+
+$('quickDate').value=localDate();
+
+
+$('startHour').value=settings.startHour;
+
+$('endHour').value=settings.endHour;
+
+$('defaultPrice').value=settings.defaultPrice;
+
+
+$('reportStart').value=localDate();
+
+$('reportEnd').value=localDate();
+
+
+updateAll();
+
+}
+
+
+
+/* =========================
+   الصفحات
+========================= */
+
+function showPage(id,btn){
+
+document.querySelectorAll('.page')
+.forEach(
+x=>x.classList.remove('active')
+);
+
+
+$(id).classList.add('active');
+
+
+document.querySelectorAll('nav button')
+.forEach(
+x=>x.classList.remove('active')
+);
+
+
+if(btn){
+
+btn.classList.add('active');
+
+}
+
+
+if(id==='bookings'){
+
+renderBookings();
+
+}
+
+
+if(id==='calendarPage'){
+
+renderCalendar();
+
+if(selectedDate){
+
+renderSlots(selectedDate);
+
+}
+
+}
+
+}
+
+
+
+/* =========================
+   حفظ حجز
+========================= */
+
+function saveBooking(){
+
+let name=$('name').value.trim();
+
+let phone=$('phone').value.trim();
+
+let date=$('date').value;
+
+let time=$('time').value;
+
+let price=
+Number($('price').value)||0;
+
+let notes=
+$('notes').value.trim();
+
+
+if(!name||!phone||!date||!time){
+
+return msg(
+'formMessage',
+'يرجى إدخال الاسم والرقم والتاريخ والوقت.',
+false
+);
+
+}
+
+
+let conflict=
+
+bookings.find(
+b=>
+b.date===date&&
+b.time===time&&
+b.id!==editingId
+);
+
+
+if(conflict){
+
+return msg(
+'formMessage',
+`هذا الوقت محجوز بالفعل بواسطة: ${escapeHtml(conflict.name)}`,
+false
+);
+
+}
+
+
+if(editingId){
+
+let b=
+bookings.find(
+x=>x.id===editingId
+);
+
+
+Object.assign(
+b,
+{
+name,
+phone,
+date,
+time,
+price,
+notes
+}
+);
+
+
+editingId=null;
+
+
+$('formTitle').textContent=
+'➕ إضافة حجز جديد';
+
+
+$('cancelEdit')
+.classList.add('hidden');
+
+}
+
+else{
+
+bookings.push({
+
+id:Date.now(),
+
+name,
+
+phone,
+
+date,
+
+time,
+
+price,
+
+notes,
+
+status:'pending',
+
+createdAt:
+new Date().toISOString()
+
+});
+
+}
+
+
+$('name').value='';
+
+$('phone').value='';
+
+$('price').value='';
+
+$('notes').value='';
+
+$('date').value=localDate();
+
+
+save();
+
+
+msg(
+'formMessage',
+'✅ تم حفظ الحجز بنجاح.',
+true
+);
+
+}
+
+
+
+/* =========================
+   الرسائل
+========================= */
+
+function msg(id,text,ok){
+
+$(id).innerHTML=
+
+`<div class="notice"
+style="color:${ok?'#166534':'#991b1b'}">
+${text}
+</div>`;
+
+}
+
+
+
+/* =========================
+   كل الحجوزات
+========================= */
+
+function renderBookings(){
+
+let q=
+$('filterText').value
+.toLowerCase()
+.trim();
+
+
+let d=
+$('filterDate').value;
+
+
+let arr=
+
+bookings
+
+.filter(b=>{
+
+let textMatch=
+
+!q||
+
+b.name
+.toLowerCase()
+.includes(q)
+
+||
+
+b.phone.includes(q);
+
+
+let dateMatch=
+
+!d||
+
+b.date>=d;
+
+
+return textMatch&&dateMatch;
+
+})
+
+.sort(
+(a,b)=>
+(a.date+a.time)
+.localeCompare(
+b.date+b.time
+)
+);
+
+
+$('bookingsBody').innerHTML=
+
+arr.length
+
+?
+
+arr.map(b=>`
+
+<tr>
+
+<td>${escapeHtml(b.name)}</td>
+
+<td>${escapeHtml(b.phone)}</td>
+
+<td>${b.date}</td>
+
+<td>${b.time}</td>
+
+<td>
+${Number(b.price||0).toLocaleString()}
+</td>
+
+<td>
+
+${
+b.status==='completed'
+
+?
+
+'<span class="badge completed">اكتمل</span>'
+
+:
+
+'<span class="badge reserved">قيد الانتظار</span>'
+}
+
+</td>
+
+<td>
+${escapeHtml(b.notes||'-')}
+</td>
+
+
+<td>
+
+<button
+class="btn small"
+onclick="editBooking(${b.id})"
+>
+✏️
+</button>
+
+${
+b.status!=='completed'
+
+?
+
+`
+
+<button
+class="btn small ok"
+onclick="completeBooking(${b.id})"
+>
+✓ تم
+</button>
+
+
+<button
+class="btn small danger"
+onclick="cancelBooking(${b.id})"
+>
+✕ إلغاء
+</button>
+
+`
+
+:
+
+''
+}
+
+
+<button
+class="btn small secondary"
+onclick="moveBooking(${b.id})"
+>
+🔄
+</button>
+
+
+<button
+class="btn small danger"
+onclick="deleteBooking(${b.id})"
+>
+🗑️
+</button>
+
+</td>
+
+</tr>
+
+`).join('')
+
+:
+
+`
+
+<tr>
+
+<td colspan="8">
+
+لا توجد حجوزات.
+
+</td>
+
+</tr>
+
+`;
+
+}
+
+
+
+/* =========================
+   تعديل
+========================= */
+
+function editBooking(id){
+
+let b=
+bookings.find(
+x=>x.id===id
+);
+
+
+if(!b)return;
+
+
+editingId=id;
+
+
+$('name').value=b.name;
+
+$('phone').value=b.phone;
+
+$('date').value=b.date;
+
+$('time').value=b.time;
+
+$('price').value=b.price||'';
+
+$('notes').value=b.notes||'';
+
+
+$('formTitle').textContent=
+'✏️ تعديل الحجز';
+
+
+$('cancelEdit')
+.classList.remove('hidden');
+
+
+showPage('booking');
+
+}
+
+
+
+function cancelEditing(){
+
+editingId=null;
+
+
+$('name').value='';
+
+$('phone').value='';
+
+$('price').value='';
+
+$('notes').value='';
+
+
+$('formTitle').textContent=
+'➕ إضافة حجز جديد';
+
+
+$('cancelEdit')
+.classList.add('hidden');
+
+}
+
+
+
+/* =========================
+   تم الحجز
+========================= */
+
+function completeBooking(id){
+
+let b=
+bookings.find(
+x=>x.id===id
+);
+
+
+if(!b)return;
+
+
+if(
+confirm(
+`هل تم استلام مبلغ الحجز من ${b.name}؟`
+)
+){
+
+b.status='completed';
+
+b.completedAt=
+new Date().toISOString();
+
+
+save();
+
+}
+
+}
+
+
+
+/* =========================
+   إلغاء الحجز
+========================= */
+
+function cancelBooking(id){
+
+let b=
+bookings.find(
+x=>x.id===id
+);
+
+
+if(!b)return;
+
+
+if(
+confirm(
+`هل تريد إلغاء حجز ${b.name}؟`
+)
+){
+
+let cancelled={
+
+...b,
+
+cancelledAt:
+new Date().toISOString(),
+
+cancelReason:'تم الإلغاء'
+
+};
+
+
+cancelledBookings.push(cancelled);
+
+
+bookings=
+bookings.filter(
+x=>x.id!==id
+);
+
+
+save();
+
+
+alert(
+'تم إلغاء الحجز وأصبح الوقت متاحاً.'
+);
+
+}
+
+}
+
+
+
+/* =========================
+   حذف
+========================= */
+
+function deleteBooking(id){
+
+if(
+confirm(
+'هل تريد حذف هذا الحجز نهائياً؟'
+)
+){
+
+bookings=
+bookings.filter(
+x=>x.id!==id
+);
+
+save();
+
+}
+
+}
+
+
+
+/* =========================
+   نقل أو تبديل
+========================= */
+
+function moveBooking(id){
+
+let b=
+bookings.find(
+x=>x.id===id
+);
+
+
+if(!b)return;
+
+
+let targetDate=
+prompt(
+'أدخل التاريخ الجديد بصيغة YYYY-MM-DD',
+b.date
+);
+
+
+if(targetDate===null)return;
+
+
+let targetTime=
+prompt(
+'أدخل الوقت الجديد بصيغة HH:MM',
+b.time
+);
+
+
+if(targetTime===null)return;
+
+
+if(!slots().includes(targetTime)){
+
+alert(
+'هذا الوقت غير موجود ضمن ساعات العمل.'
+);
+
+return;
+
+}
+
+
+let other=
+
+bookings.find(
+x=>
+x.date===targetDate&&
+x.time===targetTime&&
+x.id!==id
+);
+
+
+if(other){
+
+if(
+confirm(
+`الوقت محجوز بواسطة ${other.name}. هل تريد تبديل الحجوزتين؟`
+)
+){
+
+let oldDate=b.date;
+
+let oldTime=b.time;
+
+
+b.date=other.date;
+
+b.time=other.time;
+
+
+other.date=oldDate;
+
+other.time=oldTime;
+
+
+save();
+
+
+alert(
+'تم تبديل الحجوزتين بنجاح.'
+);
+
+}
+
+}
+
+else{
+
+b.date=targetDate;
+
+b.time=targetTime;
+
+
+save();
+
+
+alert(
+'تم نقل الحجز بنجاح.'
+);
+
+}
+
+}
+
+
+
+/* =========================
+   أوقات اليوم المختار
+========================= */
+
+function renderSlots(date){
+
+if(!date){
+
+$('selectedDayTitle').textContent=
+'📅 اختر يوماً من التقويم';
+
+
+$('allSlots').innerHTML=
+
+`<div class="notice">
+اختر يوماً من التقويم لعرض الأوقات.
+</div>`;
+
+return;
+
+}
+
+
+let rs=
+
+bookings.filter(
+b=>b.date===date
+);
+
+
+let used=
+
+new Map(
+rs.map(
+x=>[x.time,x]
+)
+);
+
+
+$('selectedDayTitle').textContent=
+'🕒 أوقات يوم '+date;
+
+
+$('allSlots').innerHTML=
+
+slots().map(t=>{
+
+let b=
+used.get(t);
+
+
+if(b){
+
+if(b.status==='completed'){
+
+return `
+
+<div class="slot completedSlot">
+
+<span>
+
+<span class="badge completed">
+${t}
+</span>
+
+🟡 مكتمل —
+
+${escapeHtml(b.name)}
+
+—
+
+${Number(b.price||0).toLocaleString()}
+
+</span>
+
+
+<div class="completedText">
+✓ اكتمل
+</div>
+
+</div>
+
+`;
+
+}
+
+
+return `
+
+<div class="slot reservedSlot">
+
+<span>
+
+<span class="badge reserved">
+${t}
+</span>
+
+🔴 محجوز —
+
+${escapeHtml(b.name)}
+
+—
+
+<a href="tel:${encodeURIComponent(b.phone)}">
+
+📞 ${escapeHtml(b.phone)}
+
+</a>
+
+</span>
+
+
+<div class="slotActions">
+
+<button
+class="btn small"
+onclick="editBooking(${b.id})"
+>
+✏️ تعديل
+</button>
+
+
+<button
+class="btn small ok"
+onclick="completeBooking(${b.id})"
+>
+✓ تم
+</button>
+
+
+<button
+class="btn small danger"
+onclick="cancelBooking(${b.id})"
+>
+✕ إلغاء
+</button>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+
+return `
+
+<div class="slot freeSlot">
+
+<span>
+
+<span class="badge free">
+${t}
+</span>
+
+🟢 متاح
+
+</span>
+
+
+<button
+class="btn small ok"
+onclick="newAt('${date}','${t}')"
+>
+➕ حجز
+</button>
+
+</div>
+
+`;
+
+}).join('');
+
+}
+
+
+
+/* =========================
+   حجز من التقويم
+========================= */
+
+function newAt(d,t){
+
+editingId=null;
+
+
+$('formTitle').textContent=
+'➕ إضافة حجز جديد';
+
+
+$('cancelEdit')
+.classList.add('hidden');
+
+
+$('date').value=d;
+
+$('time').value=t;
+
+$('price').value=
+settings.defaultPrice||'';
+
+
+$('name').value='';
+
+$('phone').value='';
+
+$('notes').value='';
+
+
+showPage('booking');
+
+}
+
+
+
+/* =========================
+   البحث السريع
+========================= */
+
+function quickSearch(){
+
+let d=
+$('quickDate').value;
+
+let t=
+$('quickTime').value;
+
+
+let b=
+
+bookings.find(
+x=>
+x.date===d&&
+x.time===t
+);
+
+
+$('quickResult').innerHTML=
+
+b
+
+?
+
+`
+
+<div class="notice">
+
+<b>
+🔴 الوقت محجوز
+</b>
+
+<br>
+
+${escapeHtml(b.name)}
+
+—
+
+${escapeHtml(b.phone)}
+
+</div>
+
+`
+
+:
+
+`
+
+<div
+class="notice"
+style="color:#166534"
+>
+
+<b>
+🟢 الوقت متاح للحجز
+</b>
+
+</div>
+
+`;
+
+}
+
+
+
+/* =========================
+   الإيرادات وإخفاؤها
+========================= */
+
+function toggleRevenue(){
+
+revenueVisible=
+!revenueVisible;
+
+
+updateRevenueDisplay();
+
+}
+
+
+function updateRevenueDisplay(){
+
+let today=localDate();
+
+
+let completedToday=
+
+bookings.filter(
+b=>
+b.date===today&&
+b.status==='completed'
+);
+
+
+let total=
+
+completedToday.reduce(
+(sum,b)=>
+sum+Number(b.price||0),
+0
+);
+
+
+$('todayRevenue').textContent=
+
+revenueVisible
+
+?
+
+total.toLocaleString()
+
+:
+
+'••••••';
+
+
+$('revenueToggle').textContent=
+
+revenueVisible
+
+?
+
+'👁️'
+
+:
+
+'🙈';
+
+}
+
+
+
+/* =========================
+   تحديث كل شيء
+========================= */
+
+function updateAll(){
+
+let today=localDate();
+
+
+let todayB=
+
+bookings.filter(
+b=>b.date===today
+);
+
+
+$('todayCount').textContent=
+todayB.length;
+
+
+$('totalCount').textContent=
+bookings.length;
+
+
+$('freeCount').textContent=
+
+Math.max(
+0,
+slots().length-todayB.length
+);
+
+
+updateRevenueDisplay();
+
+
+$('todayList').innerHTML=
+
+todayB.length
+
+?
+
+todayB
+
+.sort(
+(a,b)=>
+a.time.localeCompare(b.time)
+)
+
+.map(b=>`
+
+<div class="slot">
+
+<span>
+
+<b>${b.time}</b>
+
+—
+
+${escapeHtml(b.name)}
+
+—
+
+${
+b.status==='completed'
+?'🟡 اكتمل'
+:'🔴 قيد الانتظار'
+}
+
+</span>
+
+</div>
+
+`)
+
+.join('')
+
+:
+
+`
+
+<div class="notice">
+
+لا توجد حجوزات اليوم.
+
+</div>
+
+`;
+
+
+renderBookings();
+
+
+renderCalendar();
+
+
+if(selectedDate){
+
+renderSlots(selectedDate);
+
+}
+
+}
+
+
+
+/* =========================
+   التقويم
+========================= */
+
+function renderCalendar(){
+
+let y=
+calDate.getFullYear();
+
+let m=
+calDate.getMonth();
+
+
+$('monthTitle').textContent=
+
+new Intl.DateTimeFormat(
+'ar',
+{
+month:'long',
+year:'numeric'
+}
+).format(calDate);
+
+
+let names=[
+
+'الأحد',
+
+'الاثنين',
+
+'الثلاثاء',
+
+'الأربعاء',
+
+'الخميس',
+
+'الجمعة',
+
+'السبت'
+
+];
+
+
+let html=
+
+names.map(
+n=>`<div class="dayname">${n}</div>`
+).join('');
+
+
+let first=
+new Date(y,m,1).getDay();
+
+
+let days=
+new Date(y,m+1,0).getDate();
+
+
+html+=
+'<div class="day empty"></div>'
+.repeat(first);
+
+
+for(
+let day=1;
+day<=days;
+day++
+){
+
+let ds=
+
+y+'-'+
+pad(m+1)+'-'+
+pad(day);
+
+
+let count=
+
+bookings.filter(
+b=>b.date===ds
+).length;
+
+
+html+=`
+
+<div
+
+class="day
+${ds===localDate()?'today':''}
+${ds===selectedDate?'selectedDay':''}"
+
+onclick="selectDay('${ds}')"
+
+>
+
+<b>${day}</b>
+
+${
+count
+?
+
+`<span class="count">
+${count}
+</span>`
+
+:
+
+''
+}
+
+</div>
+
+`;
+
+}
+
+
+$('calendar').innerHTML=html;
+
+}
+
+
+
+function changeMonth(n){
+
+calDate.setMonth(
+calDate.getMonth()+n
+);
+
+renderCalendar();
+
+}
+
+
+
+function selectDay(date){
+
+selectedDate=date;
+
+renderCalendar();
+
+renderSlots(date);
+
+}
+
+
+
+/* =========================
+   حفظ الإعدادات
+========================= */
+
+function saveSettings(){
+
+let s=
+Number($('startHour').value);
+
+let e=
+Number($('endHour').value);
+
+let price=
+Number($('defaultPrice').value)||0;
+
+
+if(
+isNaN(s)||
+isNaN(e)||
+s<0||
+e>24||
+s>=e
+){
+
+alert(
+'يرجى إدخال ساعات عمل صحيحة.'
+);
+
+return;
+
+}
+
+
+settings={
+
+startHour:s,
+
+endHour:e,
+
+defaultPrice:price
+
+};
+
+
+localStorage.setItem(
+SET,
+JSON.stringify(settings)
+);
+
+
+fillTimes();
+
+
+updateAll();
+
+
+alert(
+'✅ تم حفظ ساعات العمل والسعر الافتراضي بنجاح.'
+);
+
+}
+
+
+
+/* =========================
+   البيانات
+========================= */
+
+function loginData(){
+
+$('loginFile').click();
+
+}
+
+
+
+function logoutData(){
+
+exportData();
+
+
+alert(
+'✅ تم إنشاء نسخة احتياطية من جميع البيانات.'
+);
+
+}
+
+
+
+function importLoginData(e){
+
+let f=e.target.files[0];
+
+if(!f)return;
+
+
+let r=
+new FileReader();
+
+
+r.onload=()=>{
+
+try{
+
+let x=
+JSON.parse(r.result);
+
+
+if(!Array.isArray(x.bookings)){
+
+throw new Error();
+
+}
+
+
+bookings=x.bookings;
+
+
+cancelledBookings=
+x.cancelledBookings||[];
+
+
+settings=
+x.settings||settings;
+
+
+localStorage.setItem(
+KEY,
+JSON.stringify(bookings)
+);
+
+
+localStorage.setItem(
+CANCELLED_KEY,
+JSON.stringify(cancelledBookings)
+);
+
+
+localStorage.setItem(
+SET,
+JSON.stringify(settings)
+);
+
+
+fillTimes();
+
+
+init();
+
+
+alert(
+'✅ تم استعادة البيانات بنجاح.'
+);
+
+}
+
+catch{
+
+alert(
+'❌ ملف البيانات غير صالح.'
+);
+
+}
+
+finally{
+
+e.target.value='';
+
+}
+
+};
+
+
+r.readAsText(f);
+
+}
+
+
+
+function exportData(){
+
+let n=
+Number(
+localStorage.getItem(TICKET_COUNTER)||0
+);
+
+
+let blob=
+
+new Blob(
+
+[
+
+JSON.stringify(
+{
+
+bookings,
+
+cancelledBookings,
+
+settings,
+
+ticketNumber:n,
+
+exportedAt:
+new Date().toISOString()
+
+},
+null,
+2
+)
+
+],
+
+{
+type:'application/json'
+}
+
+);
+
+
+let a=
+document.createElement('a');
+
+
+a.href=
+URL.createObjectURL(blob);
+
+
+a.download=
+`Tickets(${n}).json`;
+
+
+a.click();
+
+
+URL.revokeObjectURL(a.href);
+
+
+localStorage.setItem(
+TICKET_COUNTER,
+String(n+1)
+);
+
+}
+
+
+
+/* =========================
+   حذف البيانات
+========================= */
+
+function clearAll(){
+
+if(
+confirm(
+'⚠️ هل أنت متأكد من حذف جميع الحجوزات والبيانات؟'
+)
+){
+
+bookings=[];
+
+cancelledBookings=[];
+
+
+settings={
+
+startHour:8,
+
+endHour:23,
+
+defaultPrice:0
+
+};
+
+
+localStorage.removeItem(KEY);
+
+localStorage.removeItem(CANCELLED_KEY);
+
+localStorage.setItem(
+SET,
+JSON.stringify(settings)
+);
+
+
+selectedDate=null;
+
+
+init();
+
+
+alert(
+'تم حذف جميع البيانات.'
+);
+
+}
+
+}
+
+
+
+/* =========================
+   مسح الفلاتر
+========================= */
+
+function clearFilters(){
+
+$('filterText').value='';
+
+$('filterDate').value='';
+
+
+renderBookings();
+
+}
+
+
+
+/* =========================
+   التقرير المالي داخل الصفحة
+========================= */
+
+function getReportBookings(){
+
+let start=
+$('reportStart').value;
+
+let end=
+$('reportEnd').value;
+
+
+if(!start||!end){
+
+alert(
+'يرجى اختيار تاريخ البداية والنهاية.'
+);
+
+return null;
+
+}
+
+
+if(start>end){
+
+alert(
+'تاريخ البداية يجب أن يكون قبل تاريخ النهاية.'
+);
+
+return null;
+
+}
+
+
+let arr=
+
+bookings
+
+.filter(
+b=>
+b.status==='completed'&&
+b.date>=start&&
+b.date<=end
+)
+
+.sort(
+(a,b)=>
+(a.date+a.time)
+.localeCompare(
+b.date+b.time
+)
+);
+
+
+return {
+start,
+end,
+arr
+};
+
+}
+
+
+
+function generateReport(){
+
+let data=
+getReportBookings();
+
+
+if(!data)return;
+
+
+let {
+start,
+end,
+arr
+}=data;
+
+
+let total=
+
+arr.reduce(
+(sum,b)=>
+sum+Number(b.price||0),
+0
+);
+
+
+$('reportResult').innerHTML=
+
+`
+
+<div class="reportSummary">
+
+<div class="card">
+
+<div class="muted">
+الفترة
+</div>
+
+<b>
+${start} → ${end}
+</b>
+
+</div>
+
+
+<div class="card">
+
+<div class="muted">
+عدد الحجوزات المكتملة
+</div>
+
+<div class="stat">
+${arr.length}
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="muted">
+إجمالي الأموال الداخلة
+</div>
+
+<div class="stat">
+${total.toLocaleString()}
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="tablewrap reportTable">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>التاريخ</th>
+
+<th>الوقت</th>
+
+<th>اسم الحاجز</th>
+
+<th>رقم الهاتف</th>
+
+<th>المبلغ المدفوع</th>
+
+<th>الملاحظات</th>
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+${
+
+arr.length
+
+?
+
+arr.map(b=>`
+
+<tr>
+
+<td>${b.date}</td>
+
+<td>${b.time}</td>
+
+<td>${escapeHtml(b.name)}</td>
+
+<td>${escapeHtml(b.phone)}</td>
+
+<td>
+${Number(b.price||0).toLocaleString()}
+</td>
+
+<td>
+${escapeHtml(b.notes||'-')}
+</td>
+
+</tr>
+
+`).join('')
+
+:
+
+`
+
+<tr>
+
+<td colspan="6">
+
+لا توجد حجوزات مكتملة في هذه الفترة.
+
+</td>
+
+</tr>
+
+`
+
+}
+
+</tbody>
+
+</table>
+
+</div>
+
+
+<div class="notice"
+style="font-size:18px;font-weight:bold">
+
+💰 إجمالي الأموال المستلمة:
+
+${total.toLocaleString()}
+
+</div>
+
+`;
+
+}
+
+
+
+/* =========================
+   تقرير الأرباح PDF
+========================= */
+
+function exportReportPDF(){
+
+let data=
+getReportBookings();
+
+
+if(!data)return;
+
+
+let {
+start,
+end,
+arr
+}=data;
+
+
+if(!arr.length){
+
+alert(
+'لا توجد حجوزات مكتملة في الفترة المحددة.'
+);
+
+return;
+
+}
+
+
+let total=
+
+arr.reduce(
+(sum,b)=>
+sum+Number(b.price||0),
+0
+);
+
+
+const {
+jsPDF
+}=
+window.jspdf;
+
+
+let doc=
+
+new jsPDF({
+
+orientation:'landscape',
+
+unit:'mm',
+
+format:'a4'
+
+});
+
+
+doc.setFontSize(20);
+
+
+doc.text(
+'Club Financial Report',
+148,
+15,
+{
+align:'center'
+}
+);
+
+
+doc.setFontSize(12);
+
+
+doc.text(
+`Period: ${start} to ${end}`,
+15,
+28
+);
+
+
+doc.text(
+`Completed Bookings: ${arr.length}`,
+15,
+36
+);
+
+
+doc.text(
+`Total Revenue: ${total.toLocaleString()}`,
+15,
+44
+);
+
+
+let rows=
+
+arr.map(
+b=>[
+
+b.date,
+
+b.time,
+
+b.name,
+
+b.phone,
+
+Number(b.price||0).toLocaleString(),
+
+b.notes||'-'
+
+]
+);
+
+
+doc.autoTable({
+
+startY:52,
+
+head:[[
+'Date',
+'Time',
+'Customer Name',
+'Phone',
+'Amount Paid',
+'Notes'
+]],
+
+body:rows,
+
+styles:{
+
+fontSize:9,
+
+halign:'center'
+
+},
+
+headStyles:{
+
+halign:'center'
+
+}
+
+});
+
+
+let finalY=
+doc.lastAutoTable.finalY+12;
+
+
+doc.setFontSize(14);
+
+
+doc.text(
+`TOTAL MONEY RECEIVED: ${total.toLocaleString()}`,
+15,
+finalY
+);
+
+
+doc.save(
+`Financial_Report_${start}_to_${end}.pdf`
+);
+
+}
+
+
+
+/* =========================
+   تقرير الحجوزات الملغية
+========================= */
+
+function exportCancelledReportPDF(){
+
+if(!cancelledBookings.length){
+
+alert(
+'لا توجد حجوزات ملغية حالياً.'
+);
+
+return;
+
+}
+
+
+let arr=
+
+[...cancelledBookings]
+
+.sort(
+(a,b)=>
+(a.date+a.time)
+.localeCompare(
+b.date+b.time
+)
+);
+
+
+const {
+jsPDF
+}=
+window.jspdf;
+
+
+let doc=
+
+new jsPDF({
+
+orientation:'landscape',
+
+unit:'mm',
+
+format:'a4'
+
+});
+
+
+doc.setFontSize(20);
+
+
+doc.text(
+'Cancelled Bookings Report',
+148,
+15,
+{
+align:'center'
+}
+);
+
+
+doc.setFontSize(12);
+
+
+doc.text(
+`Total Cancelled Bookings: ${arr.length}`,
+15,
+28
+);
+
+
+let rows=
+
+arr.map(
+b=>[
+
+b.date,
+
+b.time,
+
+b.name,
+
+b.phone,
+
+Number(b.price||0).toLocaleString(),
+
+b.cancelledAt
+?new Date(b.cancelledAt).toLocaleString()
+:'-'
+
+]
+);
+
+
+doc.autoTable({
+
+startY:38,
+
+head:[[
+'Booking Date',
+'Time',
+'Customer Name',
+'Phone',
+'Booking Amount',
+'Cancelled At'
+]],
+
+body:rows,
+
+styles:{
+
+fontSize:9,
+
+halign:'center'
+
+},
+
+headStyles:{
+
+halign:'center'
+
+}
+
+});
+
+
+doc.save(
+`Cancelled_Bookings_Report.pdf`
+);
+
+}
+
+
+
+/* =========================
+   تشغيل التطبيق
+========================= */
+
+init();
+
+
+</script>
+
+</body>
+
+</html>
