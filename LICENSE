@@ -1,21 +1,31 @@
-MIT License
-
 Copyright (c) 2026 MOHAMED-ZORO
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+========================================================================
+النص العربي (Arabic Version)
+========================================================================
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+جميع الحقوق محفوظة (All Rights Reserved).
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+يُسمح بالاطلاع وقراءة هذا الكود المصدري لأغراض المعاينة والمراجعة والتعليم فقط.
+
+يُحظر حظراً تاماً القيام بأي مما يلي دون إذن كتابي مسبق من صاحب الحقوق:
+1. نسخ، أو تعديل، أو دمج، أو توزيع هذا الكود أو أي جزء منه.
+2. استخدام هذا الكود أو أي جزء منه لأغراض تجارية أو غير تجارية.
+3. إعادة نشر الكود في أي منصة أخرى أو نسبه لنفسك أو لجهة أخرى.
+
+يُقدم هذا البرمجيات "كما هي" دون أي ضمان من أي نوع، صريحاً كان أو ضمناً.
+
+========================================================================
+English Version
+========================================================================
+
+All Rights Reserved.
+
+Permission is hereby granted solely to view and read the source code contained in this repository for preview, review, and educational purposes only.
+
+Strictly prohibited without prior written consent from the copyright owner:
+1. Copying, modifying, merging, or distributing this code or any portion thereof.
+2. Using this code or any portion thereof for commercial or non-commercial purposes.
+3. Republishing this code on any platform or claiming ownership of it.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
